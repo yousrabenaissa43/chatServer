@@ -65,7 +65,6 @@
             btnSend.TabIndex = 11;
             btnSend.Text = "send";
             btnSend.UseVisualStyleBackColor = true;
-            btnSend.Click += btnSend_Click;
             // 
             // txtMsg
             // 

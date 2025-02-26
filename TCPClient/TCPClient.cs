@@ -25,17 +25,19 @@ namespace TCPClient
         {
             this.Invoke((MethodInvoker)delegate
             {
-                string receivedMessage = Encoding.UTF8.GetString(e.Data);
-                string decryptedMessage = Chiffrement_C_sar.RotString(receivedMessage, -ROT_KEY); // Decrypt the received message
-                txtInfo.Text += $"Server: {decryptedMessage}{Environment.NewLine}";
+                string encryptedMessage = Encoding.UTF8.GetString(e.Data);
+                string decryptedMessage = Chiffrement_C_sar.RotString(encryptedMessage, -ROT_KEY); // Decrypt
+
+                txtInfo.Text += $"Other Client: {decryptedMessage}{Environment.NewLine}";
             });
         }
+
 
         private void Events_Disconnected(object sender, ConnectionEventArgs e)
         {
             this.Invoke((MethodInvoker)delegate
             {
-                txtInfo.Text += $"Server disconnected {Environment.NewLine}";
+                txtInfo.AppendText("Server disconnected" + Environment.NewLine);
             });
         }
 
@@ -43,15 +45,12 @@ namespace TCPClient
         {
             this.Invoke((MethodInvoker)delegate
             {
-                txtInfo.Text += $"Server connected{Environment.NewLine}";
+                txtInfo.AppendText("Server connected" + Environment.NewLine);
             });
         }
 
-
-
         private void btnConnect_Click(object sender, EventArgs e)
         {
-
             try
             {
                 client.Connect();
@@ -70,9 +69,9 @@ namespace TCPClient
             {
                 if (!string.IsNullOrEmpty(txtMsg.Text))
                 {
-                    string encryptedMessage = Chiffrement_C_sar.RotString(txtMsg.Text, ROT_KEY); // Encrypt before sending
+                    string encryptedMessage = Chiffrement_C_sar.RotString(txtMsg.Text, ROT_KEY);
                     client.Send(encryptedMessage);
-                    txtInfo.Text += $"Me (Encrypted): {encryptedMessage}{Environment.NewLine}";
+                    txtInfo.AppendText($"Me : {txtMsg.Text}{Environment.NewLine}");
                     txtMsg.Text = string.Empty;
                 }
             }

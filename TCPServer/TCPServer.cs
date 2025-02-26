@@ -10,11 +10,9 @@ namespace TCPServer
         public TCPServer()
         {
             InitializeComponent();
-            //server = new SimpleTcpServer("127.0.0.1:9000"); // Provide a default IP and port
         }
         SimpleTcpServer server;
         private const int ROT_KEY = 55;
-
 
         private void TCPServer_Load(object sender, EventArgs e)
         {
@@ -29,28 +27,28 @@ namespace TCPServer
         {
             this.Invoke((MethodInvoker)delegate
             {
-                string receivedMessage = Encoding.UTF8.GetString(e.Data);
-                string decryptedMessage = Chiffrement_C_sar.RotString(receivedMessage, -ROT_KEY); // Decrypt before displaying
+                string encryptedMessage = Encoding.UTF8.GetString(e.Data);
 
-                txtInfo.Text += $"{e.IpPort}: {decryptedMessage} {Environment.NewLine}";
+                txtInfo.Text += $"{e.IpPort}: {encryptedMessage} {Environment.NewLine}";
 
-                // Forward the decrypted message to another client (if any)
+                // Forward the received (already encrypted) message to other clients
                 foreach (var client in server.GetClients())
                 {
-                    if (client != e.IpPort) // Avoid echoing back to the sender
+                    if (client != e.IpPort) // Avoid echoing back to sender
                     {
-                        string encryptedMessage = Chiffrement_C_sar.RotString(decryptedMessage, ROT_KEY);
-                        server.Send(client, encryptedMessage);
+                        server.Send(client, encryptedMessage); // Forward as is (already encrypted)
                     }
                 }
             });
         }
 
+
+
         private void Events_ClientDisconnected(object? sender, ConnectionEventArgs e)
         {
             this.Invoke((MethodInvoker)delegate
             {
-                txtInfo.Text += $"{e.IpPort}: disconnected {Environment.NewLine}";
+                txtInfo.AppendText($"{e.IpPort}: disconnected{Environment.NewLine}");
                 listClientIP.Items.Remove(e.IpPort);
             });
         }
@@ -59,7 +57,7 @@ namespace TCPServer
         {
             this.Invoke((MethodInvoker)delegate
             {
-                txtInfo.Text += $"{e.IpPort} connected {Environment.NewLine}";
+                txtInfo.AppendText($"{e.IpPort} connected{Environment.NewLine}");
                 listClientIP.Items.Add(e.IpPort);
             });
         }
@@ -67,25 +65,9 @@ namespace TCPServer
         private void btnStart_Click(object sender, EventArgs e)
         {
             server.Start();
-            txtInfo.Text += $"Server started..{Environment.NewLine}";
+            txtInfo.AppendText("Server started.." + Environment.NewLine);
             btnStart.Enabled = false;
             btnSend.Enabled = true;
         }
-
-        private void btnSend_Click(object sender, EventArgs e)
-        {
-            if (server.IsListening && listClientIP.SelectedItem != null)
-            {
-                if (!string.IsNullOrEmpty(txtMsg.Text))
-                {
-                    string encryptedMessage = Chiffrement_C_sar.RotString(txtMsg.Text, ROT_KEY);
-                    server.Send(listClientIP.SelectedItem.ToString(), encryptedMessage);
-                    txtInfo.Text += $"Server (Encrypted): {encryptedMessage} {Environment.NewLine}";
-                    txtMsg.Text = string.Empty;
-                }
-            }
-        }
-
-
     }
 }
