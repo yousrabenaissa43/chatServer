@@ -1,9 +1,12 @@
 using SuperSimpleTcp;
 using System.Text;
+using chiffrement_C_sar;
 namespace TCPClient
 {
     public partial class TCPClient : Form
     {
+        private const int ROT_KEY = 55;
+
         public TCPClient()
         {
             InitializeComponent();
@@ -22,7 +25,9 @@ namespace TCPClient
         {
             this.Invoke((MethodInvoker)delegate
             {
-                txtInfo.Text += $"Server: {Encoding.UTF8.GetString(e.Data)}{Environment.NewLine}";
+                string receivedMessage = Encoding.UTF8.GetString(e.Data);
+                string decryptedMessage = Chiffrement_C_sar.RotString(receivedMessage, -ROT_KEY); // Decrypt the received message
+                txtInfo.Text += $"Server: {decryptedMessage}{Environment.NewLine}";
             });
         }
 
@@ -65,8 +70,9 @@ namespace TCPClient
             {
                 if (!string.IsNullOrEmpty(txtMsg.Text))
                 {
-                    client.Send(txtMsg.Text);
-                    txtInfo.Text += $"Me : {txtMsg.Text}{Environment.NewLine}";
+                    string encryptedMessage = Chiffrement_C_sar.RotString(txtMsg.Text, ROT_KEY); // Encrypt before sending
+                    client.Send(encryptedMessage);
+                    txtInfo.Text += $"Me (Encrypted): {encryptedMessage}{Environment.NewLine}";
                     txtMsg.Text = string.Empty;
                 }
             }

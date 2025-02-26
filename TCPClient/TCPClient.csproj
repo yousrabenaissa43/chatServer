@@ -12,4 +12,8 @@
     <PackageReference Include="SuperSimpleTcp" Version="3.0.17" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\chiffrement-C-sar\chiffrement-C-sar.csproj" />
+  </ItemGroup>
+
 </Project>
